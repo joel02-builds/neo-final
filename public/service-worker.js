@@ -1,57 +1,55 @@
-const CACHE = 'neo-v4';
-const ASSETS = [
+const CACHE_NAME = 'neo-v5';
+const STATIC = [
   '/',
   '/index.html',
   '/style.css',
   '/app.js',
-  '/whale.png',
-  '/manifest.json',
 ];
 
-// Install: cache alle Core-Assets
+// Nie cachen — immer frisch vom Server
+const NEVER_CACHE = [
+  '/manifest.json',
+  '/whale.png',
+  '/api/',
+  '/uploads/',
+];
+
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS)).catch(() => {})
+    caches.open(CACHE_NAME).then(c => c.addAll(STATIC)).catch(() => {})
   );
   self.skipWaiting();
 });
 
-// Activate: alte Caches loeschen
 self.addEventListener('activate', e => {
   e.waitUntil(
+    // Alle alten Caches komplett loeschen
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
+      Promise.all(keys.map(k => {
+        console.log('[SW] Loesche alten Cache:', k);
+        return caches.delete(k);
+      }))
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch: API-Calls immer frisch, Rest aus Cache mit Network-Fallback
 self.addEventListener('fetch', e => {
-  const url = e.request.url;
+  const url = new URL(e.request.url);
 
-  // API-Calls nie cachen
-  if (url.includes('/api/')) return;
+  // Nie cachen: API, Uploads, Manifest, Icons
+  const neverCache = NEVER_CACHE.some(p => url.pathname.startsWith(p));
+  if (neverCache) return; // Netzwerk direkt
 
-  // Uploads direkt vom Server
-  if (url.includes('/uploads/')) return;
-
+  // Alles andere: Cache-first mit Netzwerk-Fallback
   e.respondWith(
     caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(response => {
-        // Gueltige Responses cachen
+      const networkFetch = fetch(e.request).then(response => {
         if (response && response.status === 200 && response.type === 'basic') {
-          const clone = response.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
+          caches.open(CACHE_NAME).then(c => c.put(e.request, response.clone()));
         }
         return response;
-      }).catch(() => {
-        // Offline-Fallback: index.html fuer SPA
-        if (e.request.destination === 'document') {
-          return caches.match('/index.html');
-        }
       });
-    })
+      return cached || networkFetch;
+    }).catch(() => caches.match('/index.html'))
   );
 });
