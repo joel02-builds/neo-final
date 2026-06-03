@@ -1,0 +1,25 @@
+{
+  "name": "Neo — Coach Terminal",
+  "short_name": "Neo",
+  "description": "Joels persönlicher Coach-Terminal",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0a0e14",
+  "background_color": "#0a0e14",
+  "categories": ["productivity", "education"],
+  "icons": [
+    {
+      "src": "/whale.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/whale.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

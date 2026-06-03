@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Neo</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="icon" href="/whale.png" type="image/png"/>
+  <link rel="stylesheet" href="/style.css"/>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <meta name="theme-color" content="#0a0e14"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     BOOT SEQUENZ
+════════════════════════════════════════════ -->
+<div id="screen-boot">
+  <canvas id="boot-canvas"></canvas>
+  <div id="boot-inner">
+    <div id="boot-neo-text"></div>
+    <div id="boot-sub-text"><span id="boot-sub-inner"></span><span id="boot-sub-cursor" class="boot-cursor"></span></div>
+    <div id="boot-progress-wrap"><div id="boot-progress-bar"></div></div>
+    <div id="boot-whale-wrap">
+      <div id="boot-whale-icon"></div>
+    </div>
+  </div>
+  <div id="boot-skip">Klick oder Taste zum Überspringen</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     STARTSCREEN
+════════════════════════════════════════════ -->
+<div id="screen-start" class="screen">
+  <div class="nordlicht-bg"></div>
+  <!-- Wal: dekorativ oben rechts, aus dem Textfluss -->
+  <img src="/whale.png" class="whale-img start-whale-deco" id="start-whale"
+       onclick="whaleTap()" title="Din trofaste følgesvenn 🐋" alt="Neo Wal"/>
+  <div class="start-inner">
+    <div class="start-meta" id="start-meta"></div>
+    <div id="cal-strip" class="cal-strip" style="display:none"></div>
+    <div class="start-greeting" id="start-greeting"></div>
+    <div class="start-sub" id="start-sub"></div>
+    <div class="start-actions" id="start-actions"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CHECK-IN
+════════════════════════════════════════════ -->
+<div id="screen-checkin" class="screen out">
+  <div class="checkin-inner">
+
+    <div class="checkin-progress" id="ci-dots">
+      <div class="cp-dot done"></div>
+      <div class="cp-dot"></div>
+      <div class="cp-dot"></div>
+    </div>
+
+    <!-- Step 0: Schlaf -->
+    <div class="checkin-step active" id="ci-step-0">
+      <div class="checkin-question">Kurzer Lagebericht, Joel.<br>Wie viele Stunden geschlafen?</div>
+      <div class="checkin-hint mono">// Schlaf = Grundlage für alles</div>
+      <div class="neo-reaction" id="ci-react-0"></div>
+      <div class="choice-grid">
+        <button class="choice-btn" onclick="checkInAnswer(0,'4h',4)">4h</button>
+        <button class="choice-btn" onclick="checkInAnswer(0,'5h',5)">5h</button>
+        <button class="choice-btn" onclick="checkInAnswer(0,'6h',6)">6h</button>
+        <button class="choice-btn" onclick="checkInAnswer(0,'7h',7)">7h</button>
+        <button class="choice-btn" onclick="checkInAnswer(0,'8h',8)">8h</button>
+        <button class="choice-btn" onclick="checkInAnswer(0,'9h+',9)">9h+</button>
+      </div>
+      <button class="btn btn-primary" id="ci-next-0" onclick="nextCIStep(1)" style="display:none">Weiter →</button>
+    </div>
+
+    <!-- Step 1: Medikinet -->
+    <div class="checkin-step" id="ci-step-1">
+      <div class="checkin-question">Medikinet?</div>
+      <div class="checkin-hint mono">// Wann genommen?</div>
+      <div class="neo-reaction" id="ci-react-1"></div>
+      <div class="choice-grid">
+        <button class="choice-btn" onclick="checkInAnswer(1,'now','Gerade eben')">Gerade eben</button>
+        <button class="choice-btn" onclick="checkInAnswer(1,'1h','Vor ~1h')">Vor ~1h</button>
+        <button class="choice-btn" onclick="checkInAnswer(1,'2h','Vor ~2h')">Vor ~2h</button>
+        <button class="choice-btn" onclick="checkInAnswer(1,'not-yet','Noch nicht')">Noch nicht</button>
+      </div>
+      <button class="btn btn-primary" id="ci-next-1" onclick="nextCIStep(2)" style="display:none">Weiter →</button>
+    </div>
+
+    <!-- Step 2: Gym -->
+    <div class="checkin-step" id="ci-step-2">
+      <div class="checkin-question">Gym heute Morgen?</div>
+      <div class="checkin-hint mono">// Ehrliche Antwort</div>
+      <div class="neo-reaction" id="ci-react-2"></div>
+      <div class="choice-grid">
+        <button class="choice-btn" onclick="checkInAnswer(2,'yes','Ja 💪')">Ja 💪</button>
+        <button class="choice-btn" onclick="checkInAnswer(2,'later','Noch nicht — gehe noch')">Gehe noch</button>
+        <button class="choice-btn" onclick="checkInAnswer(2,'no','Nein')">Nein</button>
+      </div>
+      <button class="btn btn-primary" id="ci-next-2" onclick="generateAnalysis()" style="display:none">Analyse generieren →</button>
+    </div>
+
+    <!-- Step 3: Analyse -->
+    <div class="checkin-step" id="ci-step-3">
+      <div class="checkin-question">Morgen-Analyse</div>
+      <div class="analysis-card">
+        <div class="analysis-text" id="ci-analysis"><div class="typing-dots"><span></span><span></span><span></span></div></div>
+      </div>
+      <div class="motivation-card" id="ci-motivation" style="display:none">
+        <div class="motivation-label">// Deine Geschichte</div>
+        <div class="motivation-text" id="ci-motivation-text"></div>
+      </div>
+      <button class="btn btn-primary btn-lg" onclick="enterMain()" style="margin-top:24px;width:100%">
+        Zum Command Center →
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     COMMAND CENTER
+════════════════════════════════════════════ -->
+<div id="screen-main" class="out">
+
+  <!-- NAV SIDEBAR -->
+  <nav class="nav-sidebar">
+    <div class="nav-logo">
+      <div class="whale-icon" id="nav-whale" title="Neo's Wal">
+        <img src="/whale.png" class="whale-img" alt="Neo Wal"/>
+      </div>
+      <div class="nav-logo-text">NEO</div>
+    </div>
+
+    <div class="nav-items">
+      <div class="nav-item active" onclick="showSection('lernen')" data-sec="lernen">
+        <span class="nav-icon">🧠</span><span>Lernen</span>
+      </div>
+      <div class="nav-item" onclick="showSection('training')" data-sec="training">
+        <span class="nav-icon">💪</span><span>Training</span>
+      </div>
+      <div class="nav-item" onclick="showSection('ernaehrung')" data-sec="ernaehrung">
+        <span class="nav-icon">🍎</span><span>Ernährung</span>
+      </div>
+      <div class="nav-item" onclick="showSection('finanzen')" data-sec="finanzen">
+        <span class="nav-icon">💰</span><span>Finanzen</span>
+      </div>
+      <div class="nav-item" onclick="showSection('habits')" data-sec="habits">
+        <span class="nav-icon">📈</span><span>Habits</span>
+      </div>
+      <div class="nav-item" onclick="showSection('tasks')" data-sec="tasks">
+        <span class="nav-icon">✅</span><span>Tasks</span>
+      </div>
+      <div class="nav-item" onclick="showSection('uebersicht')" data-sec="uebersicht">
+        <span class="nav-icon">📊</span><span>Übersicht</span>
+      </div>
+      <div class="nav-item" onclick="showSection('chat')" data-sec="chat">
+        <span class="nav-icon">💬</span><span>Neo Chat</span>
+      </div>
+      <div class="nav-item" onclick="showSection('einstellungen')" data-sec="einstellungen">
+        <span class="nav-icon">⚙️</span><span>Einstellungen</span>
+      </div>
+    </div>
+
+    <div class="nav-status">
+      <div class="status-row">
+        <span class="status-label">FOKUS</span>
+        <span class="status-val cyan" id="status-focus">—</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">MEDIKINET</span>
+        <span class="status-val amber" id="status-medi">—</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">STREAK</span>
+        <span class="status-val" id="status-streak">0 Tage</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- LERNEN -->
+    <div id="section-lernen" class="section active">
+      <div class="section-header">
+        <div class="section-title">🧠 Lernen · Tracker</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-sm" onclick="showAbiturCheck()">🎯 Abitur-Check</button>
+          <button class="btn btn-sm" onclick="startWalk()">🚶 Lücken abfragen</button>
+          <button class="lernablauf-toggle" onclick="toggleLernablauf()" title="Wie funktioniert das?">?</button>
+        </div>
+      </div>
+
+      <!-- Lernablauf Info (klappbar) -->
+      <div id="lernablauf-card" class="lernablauf-card" style="display:none">
+        <div class="stats-title">// DEIN LERNABLAUF — Neo + Claude</div>
+        <ol class="lernablauf-steps">
+          <li><strong>Neo</strong> — Tages-Empfehlung anschauen (welcher Block heute)</li>
+          <li><strong>Claude-Projekt</strong> öffnen → Block lernen (Erklärung → Feynman → Lücken)</li>
+          <li><strong>Neo</strong> → Block-Status aktualisieren + Phasen abhaken</li>
+          <li><strong>Neo</strong> → Lücken eintragen die noch nicht sitzen</li>
+          <li><strong>Neo</strong> → Spaziergang: Lücken wird abgefragt</li>
+        </ol>
+        <div style="margin-top:8px;font-size:0.8rem;color:var(--cyan);font-family:'JetBrains Mono',monospace">
+          Neo = Tracker · Claude = Lehrer
+        </div>
+      </div>
+
+      <!-- Tages-Empfehlung -->
+      <div id="tages-empfehlung" class="rec-card" style="display:none"></div>
+
+      <!-- Themenvorgaben-Check (einmalig) -->
+      <div id="themen-check-banner" class="themen-check-banner" style="display:none"></div>
+
+      <!-- Fortschritts-Karten -->
+      <div id="subject-progress-cards" class="subject-progress-cards"></div>
+      <div id="gesamtfortschritt" class="gesamtfortschritt-bar"></div>
+
+      <!-- Filter-Leiste -->
+      <div class="lernen-filter-row" id="lernen-filters">
+        <div class="lf-group" id="lf-fach-group">
+          <button class="lf-btn active" onclick="setLernFilter('fach','all')" data-lf="fach-all">Alle</button>
+          <button class="lf-btn" onclick="setLernFilter('fach','french')" data-lf="fach-french">🇫🇷 FR</button>
+          <button class="lf-btn" onclick="setLernFilter('fach','history')" data-lf="fach-history">📜 GE</button>
+          <button class="lf-btn" onclick="setLernFilter('fach','sowi')" data-lf="fach-sowi">🏛️ SW</button>
+          <button class="lf-btn" onclick="setLernFilter('fach','deutsch')" data-lf="fach-deutsch">📖 DE</button>
+        </div>
+        <div class="lf-group" id="lf-status-group">
+          <button class="lf-btn active" onclick="setLernFilter('status','all')" data-lf="status-all">Alle</button>
+          <button class="lf-btn" onclick="setLernFilter('status','open')" data-lf="status-open">⬜ Offen</button>
+          <button class="lf-btn" onclick="setLernFilter('status','progress')" data-lf="status-progress">🟡 Aktiv</button>
+          <button class="lf-btn" onclick="setLernFilter('status','done')" data-lf="status-done">✅ Fertig</button>
+          <button class="lf-btn" onclick="setLernFilter('status','review')" data-lf="status-review">🔄 Wdh.</button>
+        </div>
+      </div>
+
+      <!-- Block-Tabelle (mit Expand) -->
+      <div id="lernen-table"></div>
+
+      <!-- Abitur-Check -->
+      <div id="abitur-check-view" style="display:none">
+        <button class="back-btn" onclick="backToTable()">← Zurück</button>
+        <div class="stats-title" style="margin:16px 0 10px">// 🎯 ABITUR-CHECK</div>
+        <div id="abitur-check-content"></div>
+      </div>
+    </div>
+
+    <!-- TRAINING -->
+    <div id="section-training" class="section">
+      <div class="section-header">
+        <div class="section-title">💪 Training</div>
+        <div id="comeback-label" class="comeback-badge">Comeback · Woche 1</div>
+      </div>
+      <!-- Wochen-Navigation -->
+      <div id="training-week-nav" class="training-week-nav"></div>
+      <!-- Wochen-Tage -->
+      <div class="week-grid" id="week-grid"></div>
+      <!-- Übungs-Detail -->
+      <div id="workout-area"></div>
+      <!-- Fortschritts-Diagramm -->
+      <div id="progress-section"></div>
+    </div>
+
+    <!-- ERNÄHRUNG -->
+    <div id="section-ernaehrung" class="section">
+      <div class="section-header">
+        <div class="section-title">🍎 Ernährung</div>
+        <button class="btn btn-sm" onclick="resetNutritionDay()">Tag zurücksetzen</button>
+      </div>
+
+      <!-- Wasser -->
+      <div class="card nutrition-water-card">
+        <div class="stats-title">// WASSER-TRACKER</div>
+        <div class="water-display">
+          <div class="water-amount" id="water-amount">0.0L</div>
+          <div class="water-goal">/ 2.5L Ziel</div>
+        </div>
+        <div class="progress-bar-bg" style="margin:10px 0 14px">
+          <div class="progress-bar-fill" id="water-bar" style="width:0%;background:var(--cyan)"></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-sm" onclick="addWater(0.25)">+0.25L</button>
+          <button class="btn btn-sm" onclick="addWater(0.5)">+0.5L</button>
+          <button class="btn btn-sm" onclick="addWater(1.0)">+1.0L</button>
+          <button class="btn btn-ghost btn-sm" onclick="resetWater()">Reset</button>
+        </div>
+      </div>
+
+      <!-- Mahlzeiten -->
+      <div class="nutrition-meals" id="nutrition-meals">
+        <!-- wird per JS gerendert -->
+      </div>
+
+      <!-- Favoriten -->
+      <div class="card" style="margin-top:16px">
+        <div class="stats-title">// FAVORITEN</div>
+        <div id="nutrition-favs" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <input id="fav-input" class="ex-note" style="flex:1" placeholder="Neue Mahlzeit als Favorit…"/>
+          <button class="btn btn-sm" onclick="addFav()">+ Speichern</button>
+        </div>
+      </div>
+
+      <!-- Wochenübersicht -->
+      <div class="card" style="margin-top:16px">
+        <div class="stats-title">// DIESE WOCHE</div>
+        <div id="nutrition-week" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap"></div>
+      </div>
+    </div>
+
+    <!-- FINANZEN -->
+    <div id="section-finanzen" class="section">
+      <div class="section-header">
+        <div class="section-title">💰 Finanzen</div>
+      </div>
+
+      <!-- Übersicht -->
+      <div class="overview-grid">
+        <div class="countdown-card">
+          <div>
+            <div class="countdown-label">Kindergeld läuft ab</div>
+            <div class="countdown-number" id="kindergeld-months" style="font-size:2.4rem">—</div>
+            <div class="countdown-unit">Monate verbleibend · April 2027</div>
+          </div>
+          <div style="font-size:3rem;opacity:0.3">💶</div>
+        </div>
+
+        <div class="stats-card">
+          <div class="stats-title">// DIESER MONAT</div>
+          <div class="stat-row"><span>Einnahmen</span><span class="stat-val green" id="fin-income">0 €</span></div>
+          <div class="stat-row"><span>Ausgaben</span><span class="stat-val" style="color:var(--red)" id="fin-expenses">0 €</span></div>
+          <div class="stat-row"><span>Verbleibend</span><span class="stat-val cyan" id="fin-balance">0 €</span></div>
+          <div class="stat-row"><span>Budget</span>
+            <input id="fin-budget-input" class="ex-reps-input" style="width:70px" type="number" value="500"
+              onchange="saveBudget(this.value)" title="Monatliches Budget"/>
+            <span style="color:var(--text-mute);font-size:0.82rem"> €</span>
+          </div>
+        </div>
+
+        <div class="stats-card">
+          <div class="stats-title">// ZIEL — APRIL 2027</div>
+          <div style="font-size:0.88rem;color:var(--text-dim);margin:8px 0">700€/Monat eigene Einnahmen</div>
+          <div class="progress-row" style="margin-bottom:8px">
+            <span class="progress-label-text">MRR</span>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="mrr-bar" style="width:0%"></div></div>
+            <span class="progress-pct" id="mrr-pct">0%</span>
+          </div>
+          <div class="stat-row"><span>Aktuell</span><span class="stat-val cyan" id="mrr-current">0 €</span></div>
+          <div class="stat-row"><span>Ziel</span><span class="stat-val">700 €</span></div>
+        </div>
+      </div>
+
+      <!-- Website-Kunden -->
+      <div class="card" style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="stats-title">// WEBSITE-KUNDEN</div>
+          <button class="btn btn-sm" onclick="addClient()">+ Kunde</button>
+        </div>
+        <div id="clients-list"></div>
+      </div>
+
+      <!-- Transaktionen -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div class="stats-title">// EINNAHMEN</div>
+            <button class="btn btn-sm" onclick="addTransaction('income')">+ Einnahme</button>
+          </div>
+          <div id="income-list"></div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div class="stats-title">// AUSGABEN</div>
+            <button class="btn btn-sm" onclick="addTransaction('expense')">+ Ausgabe</button>
+          </div>
+          <div id="expense-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HABITS -->
+    <div id="section-habits" class="section">
+      <div class="section-header">
+        <div class="section-title">📈 Habits</div>
+        <button class="btn btn-sm" onclick="addHabit()">+ Habit</button>
+      </div>
+
+      <!-- Heute -->
+      <div class="card">
+        <div class="stats-title">// HEUTE — <span id="habit-date"></span></div>
+        <div id="habits-today" style="margin-top:12px"></div>
+      </div>
+
+      <!-- Heatmap -->
+      <div class="card" style="margin-top:16px">
+        <div class="stats-title">// 4-WOCHEN ÜBERSICHT</div>
+        <div id="habit-heatmap" style="margin-top:12px"></div>
+      </div>
+
+      <!-- Pattern -->
+      <div class="card" style="margin-top:16px">
+        <div class="stats-title">// NEO'S ANALYSE</div>
+        <div id="habit-pattern" style="margin-top:10px;font-size:0.88rem;color:var(--text-dim);line-height:1.6">
+          Analyse verfügbar nach 14 Tagen Tracking.
+        </div>
+        <button class="btn btn-sm" style="margin-top:10px" onclick="analyzeHabits()">Jetzt analysieren</button>
+      </div>
+
+      <!-- Reflexion -->
+      <div class="card" style="margin-top:16px">
+        <div class="stats-title">// SELF IMPROVEMENT</div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px">
+          <div>
+            <label class="ex-input-label">Was will ich an mir verbessern?</label>
+            <textarea class="chat-textarea" id="habit-improve" rows="2"
+              placeholder="Konkret und ehrlich…" oninput="saveReflection()"
+              style="margin-top:6px;width:100%;box-sizing:border-box"></textarea>
+          </div>
+          <div>
+            <label class="ex-input-label">Was habe ich diese Woche gelernt?</label>
+            <textarea class="chat-textarea" id="habit-learned" rows="2"
+              placeholder="Über dich, über andere, über die Welt…" oninput="saveReflection()"
+              style="margin-top:6px;width:100%;box-sizing:border-box"></textarea>
+          </div>
+          <div id="habit-question" class="motivation-moment-text" style="font-style:italic;color:var(--cyan);font-size:0.85rem"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASKS -->
+    <div id="section-tasks" class="section">
+      <div class="section-header">
+        <div class="section-title">✅ Tasks</div>
+        <button class="btn btn-sm" onclick="addTask('today')">+ Heute-Task</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <!-- Heute -->
+        <div class="card">
+          <div class="stats-title">// HEUTE <span id="tasks-xp" style="color:var(--gold);margin-left:8px">0 XP</span></div>
+          <div id="tasks-today" style="margin-top:12px"></div>
+          <div style="margin-top:6px;color:var(--text-mute);font-size:0.75rem">Max 5 Tasks</div>
+        </div>
+
+        <!-- Backlog -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="stats-title">// BACKLOG</div>
+            <button class="btn btn-sm" onclick="addTask('backlog')">+ Task</button>
+          </div>
+          <div id="tasks-backlog" style="margin-top:12px"></div>
+        </div>
+      </div>
+
+      <!-- Life Planner -->
+      <div class="card" style="margin-top:16px">
+        <div class="stats-title">// LIFE PLANNER</div>
+
+        <div style="margin-top:16px">
+          <div class="ex-input-label" style="margin-bottom:10px">DIESE WOCHE — 3 ZIELE</div>
+          <div id="week-goals"></div>
+        </div>
+
+        <div style="margin-top:20px">
+          <div class="ex-input-label" style="margin-bottom:8px">DIESER MONAT — FOKUS</div>
+          <input class="ex-note" id="month-focus" style="width:100%;box-sizing:border-box"
+            placeholder="Ein Satz: Was ist der Fokus diesen Monat?"
+            onchange="saveLifePlan()"/>
+          <div style="margin-top:10px" id="month-goals"></div>
+        </div>
+
+        <div style="margin-top:20px">
+          <div class="ex-input-label" style="margin-bottom:10px">BIS OKTOBER 2026 — MEILENSTEINE</div>
+          <div id="milestones-list"></div>
+        </div>
+      </div>
+
+      <!-- Tages-Review -->
+      <div class="card" id="daily-review-card" style="margin-top:16px;display:none">
+        <div class="stats-title">// TAGES-REVIEW</div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px">
+          <div>
+            <label class="ex-input-label">Wichtigste Leistung heute (1 Satz)</label>
+            <input class="ex-note" id="review-win" style="width:100%;box-sizing:border-box;margin-top:6px"
+              placeholder="Konkret." onchange="saveReview()"/>
+          </div>
+          <div>
+            <label class="ex-input-label">Was hätte besser laufen können? (1 Satz)</label>
+            <input class="ex-note" id="review-better" style="width:100%;box-sizing:border-box;margin-top:6px"
+              placeholder="Ehrlich." onchange="saveReview()"/>
+          </div>
+          <button class="btn btn-sm" onclick="saveReview(true)">Review speichern →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÜBERSICHT -->
+    <div id="section-uebersicht" class="section">
+      <div class="section-header">
+        <div class="section-title">📊 Übersicht</div>
+        <button class="btn btn-sm" id="close-day-btn" onclick="closeDay()" style="display:none">Tag abschließen →</button>
+      </div>
+
+      <div class="overview-grid">
+
+        <!-- Countdown + Motivation -->
+        <div class="countdown-card">
+          <div>
+            <div class="countdown-label">Mündliches Abitur</div>
+            <div class="countdown-number" id="cd-days">—</div>
+            <div class="countdown-unit">Tage verbleibend · 30.06–13.07.2026</div>
+          </div>
+          <div style="font-size:3rem;opacity:0.3">🎓</div>
+        </div>
+
+        <!-- Google Calendar -->
+        <div class="stats-card" id="cal-overview-card" style="display:none">
+          <div class="stats-title">// HEUTE · TERMINE</div>
+          <div id="cal-overview-list" style="margin-top:10px"></div>
+        </div>
+
+        <!-- Motivations-Moment -->
+        <div class="stats-card motivation-moment-card">
+          <div class="stats-title">// JOELS GESCHICHTE · HEUTE</div>
+          <div class="motivation-moment-text" id="motivation-moment">
+            <div class="typing-dots"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+
+        <!-- Heute -->
+        <div class="stats-card">
+          <div class="stats-title">// HEUTE</div>
+          <div class="stat-row"><span>Fokus-Score</span><span class="stat-val cyan" id="ov-focus">—</span></div>
+          <div class="stat-row"><span>Medikinet</span><span class="stat-val amber" id="ov-medi">—</span></div>
+          <div class="stat-row"><span>Schlaf</span><span class="stat-val" id="ov-sleep">—</span></div>
+          <div class="stat-row"><span>Missionen</span><span class="stat-val" id="ov-missions">—</span></div>
+        </div>
+
+        <!-- Diese Woche Geplant -->
+        <div class="stats-card">
+          <div class="stats-title">// DIESE WOCHE GEPLANT</div>
+          <div id="ov-week-plan"></div>
+        </div>
+
+        <!-- Fortschritt -->
+        <div class="stats-card">
+          <div class="stats-title">// FORTSCHRITT</div>
+          <div id="ov-progress"></div>
+          <div class="stat-row" style="margin-top:12px"><span>Lern-Blöcke</span><span class="stat-val" id="ov-blocks">—</span></div>
+          <div class="stat-row"><span>Gym diese Woche</span><span class="stat-val" id="ov-gym">—</span></div>
+          <div class="stat-row"><span>Streak</span><span class="stat-val gold" id="ov-streak">—</span></div>
+        </div>
+
+        <!-- Ziele -->
+        <div class="stats-card goals-card">
+          <div class="stats-title">// JOELS ZIELE</div>
+          <div id="goals-list"></div>
+          <div style="margin-top:14px;display:flex;gap:8px">
+            <input id="goal-new-input" class="ex-note" style="flex:1" placeholder="Neues Ziel..."/>
+            <button class="btn btn-sm" onclick="addGoal()">+ Ziel</button>
+          </div>
+        </div>
+
+        <!-- Heute geleistet -->
+        <div class="stats-card goals-card" id="done-list-wrap" style="display:none">
+          <div class="stats-title">// HEUTE GELEISTET</div>
+          <div id="done-list"></div>
+          <div style="margin-top:16px">
+            <div class="stats-title">// ERSTE AUFGABE MORGEN</div>
+            <input class="tomorrow-input" id="tomorrow-input" placeholder="Was ist morgen früh die erste Aufgabe?"
+              onchange="saveTomorrow(this.value)"/>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="section-chat" class="section">
+      <div class="section-header">
+        <div class="section-title">💬 Neo Chat</div>
+        <button class="btn btn-sm" onclick="clearChat()">Neues Gespräch</button>
+      </div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-row">
+        <textarea class="chat-textarea" id="chat-input" placeholder="Sag Neo was auf dem Herzen liegt…"
+          rows="1" onkeydown="chatKeydown(event)" oninput="autoResize(this)"></textarea>
+        <button class="chat-send" id="chat-send-btn" onclick="sendChat()">Senden</button>
+      </div>
+    </div>
+
+    <!-- EINSTELLUNGEN -->
+    <div id="section-einstellungen" class="section">
+      <div class="section-header">
+        <div class="section-title">⚙️ Einstellungen</div>
+      </div>
+      <div class="settings-grid">
+        <div class="settings-section">
+          <h3>Unterlagen hochladen</h3>
+          <p style="margin-bottom:16px;font-size:0.88rem">Themenvorgaben, Lernzettel, Obsidian-Exporte</p>
+          <label class="upload-zone" for="file-upload">
+            <input type="file" id="file-upload" multiple accept=".pdf,.txt,.md,.jpg,.jpeg,.png"
+              onchange="uploadFiles(this.files)"/>
+            <div style="font-size:1.8rem;margin-bottom:8px">📎</div>
+            <div style="font-size:0.9rem;color:var(--text-dim)">Dateien hier ablegen oder klicken</div>
+            <div style="font-size:0.78rem;color:var(--text-mute);margin-top:4px">PDF · TXT · MD · JPG · PNG</div>
+            <div style="font-size:0.72rem;color:var(--cyan);margin-top:6px;opacity:0.8">
+              Bilder → Neo liest Text automatisch aus (Vision)
+            </div>
+          </label>
+          <div class="file-list" id="file-list"></div>
+        </div>
+
+        <div class="settings-section" id="gcal-settings">
+          <h3>📅 Google Calendar</h3>
+          <div id="gcal-status-msg" style="font-size:0.85rem;color:var(--text-dim);margin-bottom:14px">
+            Nicht verbunden.
+          </div>
+
+          <div id="gcal-setup" style="display:none">
+            <div class="gcal-step">
+              <div class="gcal-step-num">1</div>
+              <div>
+                <div class="gcal-step-title">Google Cloud Console öffnen</div>
+                <div class="gcal-step-desc">
+                  Gehe zu <a href="https://console.cloud.google.com" target="_blank" class="gcal-link">console.cloud.google.com</a>
+                  → Neues Projekt erstellen (z.B. "Neo Calendar")
+                </div>
+              </div>
+            </div>
+            <div class="gcal-step">
+              <div class="gcal-step-num">2</div>
+              <div>
+                <div class="gcal-step-title">Calendar API aktivieren</div>
+                <div class="gcal-step-desc">
+                  APIs &amp; Dienste → Bibliothek → "Google Calendar API" suchen → Aktivieren
+                </div>
+              </div>
+            </div>
+            <div class="gcal-step">
+              <div class="gcal-step-num">3</div>
+              <div>
+                <div class="gcal-step-title">OAuth 2.0 Client erstellen</div>
+                <div class="gcal-step-desc">
+                  APIs &amp; Dienste → Anmeldedaten → + Anmeldedaten erstellen → OAuth-Client-ID<br/>
+                  Typ: <strong>Webanwendung</strong><br/>
+                  Autorisierte JavaScript-Ursprünge: <code class="gcal-code">http://localhost:3337</code>
+                </div>
+              </div>
+            </div>
+            <div class="gcal-step">
+              <div class="gcal-step-num">4</div>
+              <div>
+                <div class="gcal-step-title">Client-ID hier eintragen</div>
+                <div class="gcal-step-desc">Kopiere die Client-ID (endet auf .apps.googleusercontent.com)</div>
+              </div>
+            </div>
+            <input id="gcal-client-id-input" class="ex-note" style="width:100%;box-sizing:border-box;margin:10px 0"
+              placeholder="xxxxxxxx.apps.googleusercontent.com"/>
+            <button class="btn btn-primary" style="width:100%" onclick="saveGCalClientId()">Client-ID speichern</button>
+          </div>
+
+          <div id="gcal-actions" style="display:flex;gap:10px;flex-wrap:wrap"></div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Notizen</h3>
+          <p style="margin-bottom:12px;font-size:0.88rem">Spontane Ideen, Perceive-Ideen, Gedanken</p>
+          <div id="notes-list" class="notes-list"></div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Daten zurücksetzen</h3>
+          <p style="margin-bottom:16px;font-size:0.88rem">Alle lokalen Daten löschen. Check-in, Lernfortschritt, Training.</p>
+          <button class="btn btn-danger" onclick="resetData()">Alle Daten löschen</button>
+        </div>
+
+        <div class="settings-section">
+          <h3>Über Neo</h3>
+          <div class="stat-row"><span class="dim">Version</span><span class="status-val mono">1.0.0</span></div>
+          <div class="stat-row"><span class="dim">Modell</span><span class="status-val mono">claude-sonnet-4-6</span></div>
+          <div class="stat-row"><span class="dim">Port</span><span class="status-val mono">3337</span></div>
+          <div class="stat-row"><span class="dim">Lernzettel-Export</span><span class="status-val mono">PDF (via Browser)</span></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- NEO SIDEBAR -->
+  <aside class="neo-sidebar">
+    <div class="neo-sidebar-header">
+      <div class="neo-sidebar-label">// NEO · LIVE</div>
+      <div class="whale-icon" id="sidebar-whale" onclick="whaleTap()">
+        <img src="/whale.png" class="whale-img" alt="Neo Wal"/>
+      </div>
+    </div>
+    <div class="neo-message-area" id="neo-messages"></div>
+    <div class="neo-input-area">
+      <textarea class="neo-input" id="neo-quick-input" placeholder="Schnell was fragen…"
+        rows="1" onkeydown="neoQuickKeydown(event)"></textarea>
+      <button class="neo-send" onclick="sendNeoQuick()">↑</button>
+    </div>
+  </aside>
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SPAZIERGANG-MODUS
+════════════════════════════════════════════ -->
+<div id="screen-walk" class="screen out">
+  <div style="width:100%;max-width:500px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+      <div class="start-label" style="margin:0">🚶 SPAZIERGANG-MODUS</div>
+      <button class="btn btn-ghost btn-sm" onclick="exitWalk()">✕ Beenden</button>
+    </div>
+    <div class="walk-progress" id="walk-progress">Frage 1 von ?</div>
+    <div class="walk-question" id="walk-question"></div>
+    <div class="walk-hint" id="walk-hint"></div>
+    <textarea class="walk-answer" id="walk-answer" placeholder="Antwort hier eingeben…"></textarea>
+    <div class="walk-btns">
+      <button class="btn btn-primary btn-lg" style="flex:1" onclick="submitWalkAnswer()">Antwort prüfen</button>
+      <button class="btn btn-lg" onclick="skipWalkQuestion()">Überspringen →</button>
+    </div>
+    <div class="walk-feedback" id="walk-feedback"></div>
+  </div>
+</div>
+
+<!-- WHALE TOOLTIP -->
+<div class="whale-tooltip" id="whale-tooltip"></div>
+
+<!-- SCHNELL-NOTIZ -->
+<button class="quick-note-btn" onclick="openQuickNote()" title="Schnell notieren">+</button>
+<div class="quick-note-overlay" id="quick-note-overlay">
+  <div class="quick-note-card">
+    <div class="quick-note-title">// SCHNELL-NOTIZ</div>
+    <textarea class="quick-note-input" id="quick-note-input" placeholder="Idee, Gedanke, Perceive-Idee…" rows="4"></textarea>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="btn btn-primary" style="flex:1" onclick="saveQuickNote()">Speichern</button>
+      <button class="btn" onclick="closeQuickNote()">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+<footer class="neo-footer">NUR DER HSV</footer>
+</body>
+</html>

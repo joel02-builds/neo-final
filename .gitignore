@@ -1,0 +1,8 @@
+uploads/
+__pycache__/
+*.pyc
+.env
+ngrok.exe
+replace_learning.py
+neo_starten.bat
+neo_online_starten.bat
