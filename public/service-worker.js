@@ -1,4 +1,4 @@
-const CACHE = 'neo-v3';
+const CACHE = 'neo-v4';
 const ASSETS = [
   '/',
   '/index.html',
