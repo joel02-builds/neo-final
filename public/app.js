@@ -728,10 +728,18 @@ function updateStatusBar() {
 function showSection(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.mtb-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.mmm-item').forEach(n => n.classList.remove('active'));
   const sec = document.getElementById('section-' + name);
-  const nav = document.querySelector(`[data-sec="${name}"]`);
+  const nav = document.querySelector(`.nav-item[data-sec="${name}"]`);
+  const tab = document.querySelector(`.mtb-item[data-sec="${name}"]`);
+  const mmm = document.querySelector(`.mmm-item[data-sec="${name}"]`);
   if (sec) sec.classList.add('active');
   if (nav) nav.classList.add('active');
+  if (tab) tab.classList.add('active');
+  if (mmm) mmm.classList.add('active');
+  // Scroll to top on mobile
+  if (window.innerWidth <= 768) window.scrollTo(0, 0);
   if (name === 'uebersicht')    renderOverview();
   if (name === 'training')      renderWeekGrid();
   if (name === 'einstellungen') { renderNotesList(); renderGCalSettings(); }
@@ -740,6 +748,22 @@ function showSection(name) {
   if (name === 'habits')        renderHabits();
   if (name === 'tasks')         renderTasks();
 }
+
+function toggleMobileMore() {
+  const menu = document.getElementById('mobile-more-menu');
+  if (!menu) return;
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+function closeMobileMore() {
+  const menu = document.getElementById('mobile-more-menu');
+  if (menu) menu.style.display = 'none';
+}
+// Close more menu on outside tap
+document.addEventListener('click', e => {
+  if (!e.target.closest('#mobile-more-menu') && !e.target.closest('#mtb-more')) {
+    closeMobileMore();
+  }
+});
 
 // ─── Neo Sidebar ──────────────────────────────────────────
 function initNeoSidebar() {

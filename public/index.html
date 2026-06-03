@@ -728,6 +728,25 @@
   </div>
 </div>
 
+<!-- MOBILE BOTTOM TAB BAR -->
+<nav class="mobile-tab-bar" id="mobile-tab-bar">
+  <div class="mtb-item active" onclick="showSection('lernen')"     data-sec="lernen">     <span>🧠</span><span>Lernen</span></div>
+  <div class="mtb-item"       onclick="showSection('training')"    data-sec="training">   <span>💪</span><span>Training</span></div>
+  <div class="mtb-item"       onclick="showSection('tasks')"       data-sec="tasks">      <span>✅</span><span>Tasks</span></div>
+  <div class="mtb-item"       onclick="showSection('chat')"        data-sec="chat">       <span>💬</span><span>Chat</span></div>
+  <div class="mtb-item"       onclick="toggleMobileMore()"         id="mtb-more">         <span>⋯</span><span>Mehr</span></div>
+</nav>
+<!-- MOBILE MORE MENU -->
+<div class="mobile-more-menu" id="mobile-more-menu" style="display:none">
+  <div class="mmm-grid">
+    <div class="mmm-item" onclick="showSection('ernaehrung');closeMobileMore()"  data-sec="ernaehrung">  <span>🍎</span><span>Ernährung</span></div>
+    <div class="mmm-item" onclick="showSection('finanzen');closeMobileMore()"    data-sec="finanzen">    <span>💰</span><span>Finanzen</span></div>
+    <div class="mmm-item" onclick="showSection('habits');closeMobileMore()"      data-sec="habits">      <span>📈</span><span>Habits</span></div>
+    <div class="mmm-item" onclick="showSection('uebersicht');closeMobileMore()"  data-sec="uebersicht">  <span>📊</span><span>Übersicht</span></div>
+    <div class="mmm-item" onclick="showSection('einstellungen');closeMobileMore()" data-sec="einstellungen"><span>⚙️</span><span>Einst.</span></div>
+  </div>
+</div>
+
 <!-- WHALE TOOLTIP -->
 <div class="whale-tooltip" id="whale-tooltip"></div>
 
